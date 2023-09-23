@@ -25,7 +25,7 @@ A small handler used to prompt the user for entries in the Inputs file. Opens th
 - Reads data from Inputs, generates a calendar tied to the budget. Writes data out for use in the output. Stores logic behind working with `frequency` & deciding where budgeted amounts will be allocated by day. 
 
 ### BudgetApp
-- In short, a massive wrapper for xlWings operations. The template itself is barebones, so all of the styling, formulas and data is coming via this module.
+- In short, a massive wrapper for [xlwings](https://github.com/xlwings/xlwings) operations. The template itself is barebones, so all of the styling, formulas and data is coming via this module.
 
 ## Output
 
