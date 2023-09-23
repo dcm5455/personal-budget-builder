@@ -60,3 +60,7 @@ A small handler used to prompt the user for entries in the Inputs file. Opens th
 ### BudgetApp
 - In short, a massive wrapper for [xlwings](https://github.com/xlwings/xlwings) operations. The template itself is barebones, so all of the styling, formulas and data is coming via this module.
 
+## Dependencies
+- Microsoft Excel
+- Python 3.x
+- xlwings >= 0.30.10
