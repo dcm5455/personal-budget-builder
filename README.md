@@ -1,6 +1,6 @@
 # Personal-Budget-Tool
 
-Excel + Python collaboration that generates a personal budget tool in Excel based on user inputs. 
+Excel + Python collaboration that generates a personal budget tool in Excel based on user input.
 
 ![Example Run](src/img/project.gif)
 
@@ -8,7 +8,7 @@ Excel + Python collaboration that generates a personal budget tool in Excel base
 App to dynamically build a functional personal budget in Excel & Python based on user input. 
 
 ## Quick Start
-- Downlad or clone the repository.
+- Download or clone the repository.
 - Edit the Budget Items in the [Inputs](src/Inputs.xlsx) file to add your own expenses.
 - Run `python personal_budget_tool/app.py` to generate your Excel File
 
@@ -27,6 +27,7 @@ You can also add more advanced details to each item, such as:
 - Seasonality (electricity costs more in the summer)
 
 ## `App.py`
+
 ### InputConfig
 - A small handler used to prompt the user for entries in the Inputs file. 
 
