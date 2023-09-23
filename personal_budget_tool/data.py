@@ -25,22 +25,15 @@ class DataBuilder:
         self._calc_budget_amounts()
 
     def _get_dates(self):
-        """One-line description of function
+        """Reads table of dates from Inputs file
 
-        Multi-line expanded description of function
+        Reads table from excel file into pd.DataFrame format. Sets self.dates
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            None
 
         Returns:
-            return: val
+            None
 
         """
         dates = read_dataframe_input(**Models.BudgetDate)
@@ -55,14 +48,7 @@ class DataBuilder:
         Multi-line expanded description of function
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            None
 
         Returns:
             return: val
@@ -74,43 +60,31 @@ class DataBuilder:
         ]
 
     def _get_items(self):
-        """One-line description of function
+        """Reads table of items from Inputs file
 
-        Multi-line expanded description of function
+        Reads table from excel file into pd.DataFrame format. Sets self.items
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            None
 
         Returns:
-            return: val
+            None
 
         """
         self.items = read_dataframe_input(**Models.BudgetItem)
 
     def _get_date_items(self):
-        """One-line description of function
+        """Creates cartesian product of dates and items dataframes
 
-        Multi-line expanded description of function
+        Combines two existing dataframes as a cross join (or cartesian product).
+        Sorts by budget_item, then date ascending. Adds a 0-value field for budget amt,
+        which we fill in next.
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            None
 
         Returns:
-            return: val
+            None
 
         """
         df = self.dates.merge(self.items, how="cross")
@@ -121,43 +95,38 @@ class DataBuilder:
         self.date_items = df
 
     def _is_even_week(self, week_number: int) -> bool:
-        """One-line description of function
+        """Boolean check if week_number is even
 
-        Multi-line expanded description of function
+        Simple math function to check whether week is even or not
+        This is used for frequencies such as 'bi-weekly' so we can understand
+            when to budget for something correctly
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            week_number: int
+                Week number to check
 
         Returns:
-            return: val
+            bool: is_even
 
         """
         return (week_number % 2) == 0
 
     def _validate_date(self, year: int, month: int, day: int) -> bool:
-        """One-line description of function
+        """Boolean check of date validity
 
-        Multi-line expanded description of function
+        Create date based on year, month, day params.
+        Validate based on the date_list created by earlier dates data
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            year: int
+                Year of date
+            month: int
+                Month of date
+            day: int
+                Day in month of date
 
         Returns:
-            return: val
+            bool: exists_in_list
 
         """
         return f"{year}-{month}-{day}" in self.date_list
