@@ -37,3 +37,7 @@ You can also add more advanced details to each item, such as:
   -  Amount
   -  Frequency (Dropdown)
 -  Run `python personal_budget_tool/app.py` to generate the tool
+
+##Output
+
+[Budget Tool](src/Budget.png)
