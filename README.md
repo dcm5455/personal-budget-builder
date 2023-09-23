@@ -1,6 +1,6 @@
 # Personal-Budget-Tool
 
-Excel + Python collaboration that generates a personal budget tool in Excel based on user input.
+Excel + Python app that generates a personal budget tool in Excel based on user input.
 
 ![Budget Tool](src/img/Budget.png)
 
