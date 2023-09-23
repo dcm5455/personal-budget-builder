@@ -132,22 +132,19 @@ class DataBuilder:
         return f"{year}-{month}-{day}" in self.date_list
 
     def _get_max_day_in_yearmonth(self, year: int, month: int) -> int:
-        """One-line description of function
+        """Get max day_number for given month & year
 
-        Multi-line expanded description of function
+        Uses existing date_items DF, filters to given year & month, returns maximum
+            day_number based on those params.
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            year: int
+                given_year
+            month: int
+                given_month
 
         Returns:
-            return: val
+            return: day: int
 
         """
         return (
@@ -157,23 +154,21 @@ class DataBuilder:
             .query(f"year == {year} & month_number == {month}")["day_number"]
         )
 
-    def _get_date_attribs(self, date: datetime) -> Tuple[datetime, bool]:
-        """One-line description of function
+    def _get_date_attribs(self, date: datetime) -> Tuple[int, bool]:
+        """Get additional date attributes
 
-        Multi-line expanded description of function
+        Gets additional date attributes based on passed datetime.
+        Start day of week (day # in week based on datetime passed) and
+        whether the week was an even week. This is used in bi-weekly freq's
+        to understand what cadence to budget on
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            date: datetime
+                start_date provided to base cadence upon
 
         Returns:
-            return: val
+            tuple(datetime, bool)
+            tuple(day_of_week, is_even_week)
 
         """
         iter_date = self.dates[self.dates["date"] == date].iloc[0]
@@ -182,19 +177,16 @@ class DataBuilder:
         return (start_day_of_week, is_even_week)
 
     def _audit_date_frequencies(self):
-        """One-line description of function
+        """Check validity of dates in date_items
 
-        Multi-line expanded description of function
+        Frequency defines day of budget in some cases (i.e. always due on 30th of month)
+        If month does not have 30 days, we need to account for this and move to
+            the max existing day in month.
+        Iterates over rows in date_items, skips rows w/o frequency_day
+        If row has an invalid date, set to max_day_in_yearmonth
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            None
 
         Returns:
             return: val
@@ -212,27 +204,19 @@ class DataBuilder:
                     row["year"], row["month_number"]
                 )
                 self.date_items.at[index, "frequency_day"] = new_day
-            # print(
-            #     f"Updated {row['item_name']} for {row['month_year']} from {row['frequency_day']} to {new_day}.."
-            # )
 
     def _calc_multiplier(self, row: dict) -> float:
-        """One-line description of function
+        """Calculate multiplier for budget_amount
 
-        Multi-line expanded description of function
+        Calculates multiplier applied to input budget value
+        If income, keep number positive else negative (expense)
+        If seasonality applied, add seasonality_multiplier on top
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            row: dict (pd.DataFrame row)
 
         Returns:
-            return: val
+            return: float
 
         """
         return (1.00 if row["item_type"] == "Income" else -1.00) * (
@@ -240,22 +224,18 @@ class DataBuilder:
         )
 
     def _validate_record(self, row: dict) -> bool:
-        """One-line description of function
+        """Validate basic requirements for date_item
 
-        Multi-line expanded description of function
+        A few criterae to check before running through freq_types
+            1 - if inactive record, return false
+            2 - if end_date exists and date is past end, return false
+            3 - if start_date exists and date is before start, return false
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            row: dict (pd.DataFrame row)
 
         Returns:
-            return: val
+            return: bool
 
         """
         if not row["is_active"]:
@@ -272,22 +252,18 @@ class DataBuilder:
         return True
 
     def _calculate_budget_amount(self, row: dict) -> float:
-        """One-line description of function
+        """Calculate budget amount for record in date_items
 
-        Multi-line expanded description of function
+        Performs validation_check on record
+        Checks by frequency_type for matching criteria
+        Returns item_amount * calc_multiplier for records we want to budget for
+            else 0.00
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            row: dict (pd.DataFrame row)
 
         Returns:
-            return: val
+            return: float
 
         """
         if not self._validate_record(row):
@@ -377,22 +353,13 @@ class DataBuilder:
         return 0.00
 
     def _calc_budget_amounts(self):
-        """One-line description of function
+        """Applies function to each row in date_items
 
-        Multi-line expanded description of function
+        Calculates budget_amount field using above function
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
 
         Returns:
-            return: val
 
         """
         self.date_items["budget_item_amount"] = self.date_items.apply(
