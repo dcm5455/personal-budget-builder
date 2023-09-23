@@ -15,6 +15,39 @@ App to dynamically build a functional personal budget in Excel & Python based on
 
 ![Example Run](src/img/project.gif)
 
+## Models
+
+### Input (Budget Items)
+Each Budget Item is generated from a row in the [Inputs](src/Inputs.xlsx) file.
+- `is_active`
+  - On/Off switch for each budget item 
+- `is_seasonality`
+  - Boolean whether seasonality should be applied (ex. electric bill in summer) 
+- `company_name`
+  - Company associated with budget item 
+- `item_name`
+  - Budget item name
+- `category_name`
+  - Dropdown for category associated with budget item 
+- `category_group`
+  - Higher-level grouping for categories 
+- `display_group`
+  - Grouping of items in grids in tool 
+- `item_type`
+  - Income / Expense  
+- `item_amount`
+  - Budgeted amount   
+- `frequency_type`
+  - Budgeted frequency (weekly, monthly, annually, etc.) 
+- `frequency_day`
+  - Day of {x} associated with frequency (i.e. monthly on the 1st day) 
+- `frequency_date`
+  - Full date associated with frequency (annual on 4/24, etc.) 
+- `start_date`
+  - Start date for budget item 
+- `end_date`
+  - End date for budget item 
+- `notes`
   
 ## Application
 
