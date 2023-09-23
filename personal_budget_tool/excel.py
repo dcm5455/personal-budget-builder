@@ -26,6 +26,8 @@ class BudgetApp:
         self.expense_total_rows = []
         self.new_year_cols = []
         self._create_xlInstance()
+        self._build_file()
+        ## self._save_and_close()
 
     def _get_unique_months(self) -> list:
         """One-line description of function
@@ -196,8 +198,9 @@ class BudgetApp:
             return: val
 
         """
-        self._xlApp = xw.App(visible=True)
+        # self._xlApp = xw.App(visible=True)
         self._wb = xw.Book(TEMPLATE_PATH)
+        self._wb.app.activate(steal_focus=True)
 
     def _update_data(self):
         """One-line description of function
@@ -395,7 +398,7 @@ class BudgetApp:
         income_rng = summary.range(f"D{row_index}:{max_col_char}{row_index}")
         self._format_range(
             income_rng,
-            formula=f"={self.income_total_row}",
+            formula=f"=D{self.income_total_row}",
             format=Excel.FormatType.Number,
         )
         row_index += 1

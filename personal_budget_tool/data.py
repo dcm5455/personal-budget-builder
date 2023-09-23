@@ -1,10 +1,13 @@
 import os
 import pandas as pd
+import warnings
 from datetime import datetime
 from typing import Union, Tuple
 
 from constants import Models
 from utils import read_dataframe_input, filter_df_between
+
+warnings.simplefilter("ignore")
 
 
 class DataBuilder:
@@ -240,9 +243,9 @@ class DataBuilder:
                     row["year"], row["month_number"]
                 )
                 self.date_items.at[index, "frequency_day"] = new_day
-            print(
-                f"Updated {row['item_name']} for {row['month_year']} from {row['frequency_day']} to {new_day}.."
-            )
+            # print(
+            #     f"Updated {row['item_name']} for {row['month_year']} from {row['frequency_day']} to {new_day}.."
+            # )
 
     def _calc_multiplier(self, row: dict) -> float:
         """One-line description of function

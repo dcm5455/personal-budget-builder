@@ -1,3 +1,6 @@
 *.archive/
 *.pyc
 *__pycache__/
+
+
+*~*
