@@ -40,4 +40,4 @@ You can also add more advanced details to each item, such as:
 
 ##Output
 
-[Budget Tool](src/Budget.png)
+[Budget Tool](src/img/budget.png)
