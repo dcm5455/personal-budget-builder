@@ -7,7 +7,7 @@ Excel + Python collaboration that generates a personal budget tool in Excel base
 ## Overview
 App to dynamically build a functional personal budget in Excel & Python based on user input. 
 
-## Quick Start
+### Quick Start
 - Download or clone the repository.
 - Edit the Budget Items in the [Inputs](src/Inputs.xlsx) file to add your own expenses.
 - Run `python personal_budget_tool/app.py` to generate your Excel File
