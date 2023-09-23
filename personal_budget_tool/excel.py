@@ -59,22 +59,16 @@ class BudgetApp:
         ]
 
     def _get_items(self) -> pd.DataFrame:
-        """One-line description of function
+        """Gets list of items, group name, total/abs budget amount
 
-        Multi-line expanded description of function
+        This list is used in the loop generating each item in a display group
+        Budget amounts are relevant as we are once again sorting based on volume
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
 
         Returns:
-            return: val
+            df: pd.Dataframe
+                cols: item_name, display_group, budget_item_amount, budget_item_amount_abs
 
         """
         df_copy = self.df.copy()
@@ -99,22 +93,18 @@ class BudgetApp:
         return it
 
     def _get_category_groups(self) -> pd.DataFrame:
-        """One-line description of function
+        """Returns list of Display Groups ordered by budget_amount (abs)
 
-        Multi-line expanded description of function
+        Aggregates budget detail by display group, orders by largest items ascending
+        This assumes the behavior of writing the groups with the highest spend first
+            (Arguably income should always > any individual group)
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            
 
         Returns:
-            return: val
+            df: pd.Dataframe
+                cols: Display_Group, budget_item_amount_abs
 
         """
         return (
@@ -141,22 +131,47 @@ class BudgetApp:
         line_style: Excel.LineStyle = Excel.LineStyle.xlContinuous,
         border_weight: Excel.BorderWeight = Excel.BorderWeight.xlThin,
     ):
-        """One-line description of function
+        """Resusable common range commands to avoid duplication
 
-        Multi-line expanded description of function
+        Receives an xlwings.Sheet.Range object
+        Parameters allow a wide variety of formatting options to be applied
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            range: xlwings.Sheet.Range object
+                xlwings context to apply formatting operations to
+            value: str or int
+                Sets cell value(s)
+            formula: str
+                Set cell formula
+                if setting for range, context is relative to location
+                    (i.e.) set formula to =SUM(D4) in cells E4:E5
+                    formulas would be =SUM(D4), =SUM(D5)
+            format: Excel.FormatType
+                str formatting value inherited from constants
+            font_size: int
+                sets font size
+            font_name: str
+                sets font name
+            bold: bool
+                bold font for cells
+            italic: bool
+                italicizes cells
+            underline: bool
+                underlines cells
+            border: bool
+                add border - will assume default vals below
+            border_pos: Excel.BordersIndex
+                int inherited from constants
+                default: bottom
+            line_style: Excel.LineStyle
+                int inherited from constants
+                default: continuous
+            border_weight: Excel.BorderWeight
+                int inherited from constants
+                default: thin
 
         Returns:
-            return: val
+            
 
         """
         if value:
@@ -180,22 +195,13 @@ class BudgetApp:
             range.api.Borders(border_pos).Weight = border_weight
 
     def _create_xlInstance(self):
-        """One-line description of function
+        """Initializes xlwings.Book instance
 
-        Multi-line expanded description of function
+        Opens workbook template, forces display front-center
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
 
         Returns:
-            return: val
 
         """
         # self._xlApp = xw.App(visible=True)
@@ -203,22 +209,16 @@ class BudgetApp:
         self._wb.app.activate(steal_focus=True)
 
     def _update_data(self):
-        """One-line description of function
+        """Writes budget detail to data sheet
 
-        Multi-line expanded description of function
+        Using workbook context
+            Identify data sheet
+            identify range of existing data (if any)
+            Clear contents, paste DF in upper-left of range
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
 
         Returns:
-            return: val
 
         """
         detail = self._wb.sheets["Data"]
@@ -228,22 +228,21 @@ class BudgetApp:
     def _create_summary_header(
         self, summary: xw.Sheet, col_index: int, month_year: Tuple[int, int]
     ):
-        """One-line description of function
+        """Writes Month-Year title in Sheet
 
-        Multi-line expanded description of function
+        Writes new title cell for budgeted month
+        Also sets some hidden, adjacent vals used for cell refs
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            summary: xlwings.Book.Sheet (is this even needed?)
+                context of sheet
+            col_index: int
+                iteration column index
+                (where to write new vals)
+            month_year: tuple(int, int)
+                iteration month & year
 
         Returns:
-            return: val
 
         """
         col = get_col_char(col_index)
@@ -269,22 +268,30 @@ class BudgetApp:
     def _create_category(
         self, summary: xw.Sheet, row_index: int, max_col_index: int, categoryGroup: dict
     ):
-        """One-line description of function
+        """Writes Display_Group (all items, all month/years) to Sheet 
 
-        Multi-line expanded description of function
+        Gets category data (item data from _get_items())
+        Creates title cell for Display_Group, border runs below left-right
+        Iterates over each item in Display_Group
+            Writes label cell, sets formula to SUMIFS
+                Budget Amount, based on item_name, month, year
+        Adds bottom border to last item in group
+        Adds total row (sum of all items)
+        Adds % of Income if group != income
+            
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            summary: xlwings.Book.Sheet
+            row_index: int
+                Starting row index for group
+            max_col_index: int
+                Maximum month written to col headers
+                (right-most limit)
+            categoryGroup: dict
+                dictionary from self._get_category_groups()
 
         Returns:
-            return: val
+            int: index of last row written to
 
         """
         max_col_char = get_col_char(max_col_index)
@@ -367,22 +374,20 @@ class BudgetApp:
             return pct_row
 
     def _build_totals(self, summary: xw.Sheet, row_index: int, max_col_index: int):
-        """One-line description of function
+        """Builds additional group area to summarize Income, Expenses
 
-        Multi-line expanded description of function
+        Adds totals group at bottom of budget sheet
+        Total Income, Total Expenses, Remaining, Remaining (% of Income)
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            summary: xlwings.Book.Sheet
+            row_index: int
+                row to start at
+            max_col_index: int
+                Right-most column written to (limit)
 
         Returns:
-            return: val
+            int: last row index written to
 
         """
         max_col_char = get_col_char(max_col_index)
@@ -450,22 +455,20 @@ class BudgetApp:
     def _sheet_level_formatting(
         self, summary: xw.Sheet, max_col_index: int, last_row_index: int
     ):
-        """One-line description of function
+        """Final step, overall sheet-level cleanup applied to wb
 
-        Multi-line expanded description of function
+        Sets all cells to Arial, 10 font
+        Sets window to 80% zoom
+        Adds vertical border every 12 months 
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            summary: xlapp.Book.Sheet
+            max_col_index: int
+                last column written to
+            last_row_index: int
+                last row written to
 
         Returns:
-            return: val
 
         """
         all_cells = summary.range(
@@ -485,26 +488,31 @@ class BudgetApp:
             )
 
     def _build_file(self):
-        """One-line description of function
+        """Calls all other funcs, builds budget tool
 
-        Multi-line expanded description of function
+        Opens workbook template
+        Updates underlying Data tab
+        Edits title of budget sheet
+        Iterates over each month/year
+            calls _create_summary_header()
+        Iterates over each display_group
+            calls _create_category()
+        Builds totals
+            calls _build_totals()
+        Applies sheet formatting + cleanup
+            calls _sheet_level_formatting()
 
         Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
+            
 
         Returns:
-            return: val
 
         """
         summary = self._wb.sheets["Template"]
         summary.activate()
+        
+        ##Update underlying data
+        self._update_data()
 
         ##Edit title
         summary.range("B2").value = (
@@ -533,9 +541,9 @@ class BudgetApp:
         self._sheet_level_formatting(summary, start_col, iter_row)
 
     def save_and_close(self):
-        """One-line description of function
+        """Using instance of xlwings.Book, saves & closes file
 
-        Multi-line expanded description of function
+        Output: ../src/output
 
         Args:
             Arg1: ArgType
