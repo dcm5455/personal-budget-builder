@@ -38,6 +38,6 @@ You can also add more advanced details to each item, such as:
   -  Frequency (Dropdown)
 -  Run `python personal_budget_tool/app.py` to generate the tool
 
-##Output
+## Output
 
 [Budget Tool](src/img/Budget.png)
