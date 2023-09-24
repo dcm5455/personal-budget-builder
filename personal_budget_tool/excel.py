@@ -179,36 +179,36 @@ class BudgetApp:
 
         Parameters
         ----------
-            range: xlwings.Sheet.Range object
+            range : xlwings.Sheet.Range object
                 xlwings context to apply formatting operations to
-            value: [str, int]
+            value : [str, int]
                 Sets cell value(s)
-            formula: str
+            formula : str
                 Set cell formula
                 if setting for range, context is relative to location
                     (i.e.) set formula to =SUM(D4) in cells E4:E5
                     formulas would be =SUM(D4), =SUM(D5)
-            format: Excel.FormatType
+            format : Excel.FormatType
                 str formatting value inherited from constants
-            font_size: int
+            font_size : int
                 sets font size
-            font_name: str
+            font_name : str
                 sets font name
-            bold: bool
+            bold : bool
                 bold font for cells
-            italic: bool
+            italic : bool
                 italicizes cells
-            underline: bool
+            underline : bool
                 underlines cells
-            border: bool
+            border : bool
                 add border - will assume default vals below
-            border_pos: Excel.BordersIndex
+            border_pos : Excel.BordersIndex
                 int inherited from constants
                 default: bottom
-            line_style: Excel.LineStyle
+            line_style : Excel.LineStyle
                 int inherited from constants
                 default: continuous
-            border_weight: Excel.BorderWeight
+            border_weight : Excel.BorderWeight
                 int inherited from constants
                 default: thin
 
