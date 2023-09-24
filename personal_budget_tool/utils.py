@@ -12,14 +12,18 @@ def read_dataframe_input(
 
     Parameters
     ----------
-        Source (dict): pandas.read_excel parameters
-        Columns (list, optional): column names to use. Defaults to None.
-        IndexColumn (str, optional): str name of index column to be created based on ID. Defaults to None.
-        BoolColumns (list, optional): list of str columns to be converted to boolean from Y/N text options in Excel. Defaults to None.
+        Source : dict
+            pandas.read_excel parameters
+        Columns (list, optional): list, default None
+            column names to use
+        IndexColumn (str, optional): str, default None
+            str name of index column to be created based on ID
+        BoolColumns (list, optional): list, default None
+            list of str columns to be converted to boolean from Y/N text options in Excel
 
     Returns
     -------
-        pd.DataFrame:
+        pd.DataFrame
     """
     df = pd.read_excel(**Source)
     if Columns:
@@ -38,18 +42,21 @@ def filter_df_between(
 ) -> pd.DataFrame:
     """Filters a dataframe based on a single key and two inclusive boundaries
 
-    Reads a table from a local input .xlsx file. Parameters are specialized based on constants.Models
-
     Parameters
     ----------
-        df (pd.DataFrame): The dataframe to be filtered
-        col (str): The key to filter on
-        vals (tuple): (min_value, max_value)
-        index_col (str, optional): Re-create ID (index) column based on index, name str. Defaults to None.
+        df : pd.DataFrame
+            The dataframe to be filtered
+        col : str
+            The key to filter on
+        vals : tuple
+            (min_value, max_value)
+        index_col (str, optional): str, default None
+            Re-create ID (index) column based on index, name str
 
     Returns
     -------
-        pd.DataFrame: filtered dataframe
+        pd.DataFrame
+            filtered dataframe
     """
     df = df[(df[col] >= vals[0]) & (df[col] <= vals[1])].reset_index(drop=True)
     if index_col:
@@ -58,15 +65,6 @@ def filter_df_between(
 
 
 class DotDict(dict):
-    """_summary_
-
-    _extended_summary_
-
-    Parameters
-    ----------
-        dict (_type_): _description_
-    """
-
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
@@ -77,11 +75,13 @@ def get_col_char(i: int) -> str:
 
     Parameters
     ----------
-        i (int): Integer index off column
+        i : int
+            index of column
 
     Returns
     -------
-        str: Excel column equivalent
+        str
+            Excel column equivalent
     """
     string = ""
     while i > 0:
