@@ -16,7 +16,7 @@ def main():
     df = data.get_export_data()
 
     excelApp = BudgetApp(min_date=min_date, max_date=max_date, df=df)
-    # excelApp.save_and_close()
+    excelApp.save_and_close()
 
 
 if __name__ == "__main__":
