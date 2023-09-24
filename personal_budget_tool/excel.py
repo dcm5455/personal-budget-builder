@@ -17,13 +17,16 @@ class BudgetApp:
 
     Attributes
     ----------
-        min_date (datetime) : Start date for the budget
-        max_date (datetime) : End date for the budget
-        df (pandas.DataFrame) : DataBuilder df
-        wb (xlwings.Book) : Instance of the workbook
-            See `build()`
-        sht (xlwings.Book.Sheet) : Instance of the workbook --> sheet
-            See `build()`
+        min_date : datetime
+            Start date for the budget
+        max_date: datetime
+            End date for the budget
+        df : pd.DataFrame
+            Data df from the `DataBuilder` class
+        wb : xlwings.Book
+            Instance of the workbook, see `build()`
+        sht : xlwings.Book.Sheet
+            Instance of the workbook sheet, see `build()`
 
     Methods
     -------
@@ -39,9 +42,12 @@ class BudgetApp:
 
         Parameters
         ----------
-            min_date (datetime) : Start date for the budget
-            max_date (datetime) : End date for the budget
-            df (pandas.DataFrame) : DataBuilder df
+            min_date : datetime
+                Start date for the budget
+            max_date: datetime
+                End date for the budget
+            df : pd.DataFrame
+                Data df from the `DataBuilder` class
         """
         self.min_date = min_date
         self.max_date = max_date
@@ -59,15 +65,10 @@ class BudgetApp:
 
         Note: only month_year with budget_item_amount > 0 are returned.
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
-            list: [(int, int)]
-                List of each month_year combination
-
+            list
+                List of each month_year combination ex. `[(month, year)]`
         """
         return [
             (x["month_number"], x["year"])
@@ -80,25 +81,19 @@ class BudgetApp:
         ]
 
     def _get_items(self) -> pd.DataFrame:
-        """Gets list of items, group name, total/abs budget amount
+        """Gets dataframe with list/group information
 
-        This list is used in the loop generating each item in a display group
+        Note: This list is used in the loop generating each item in a display group
         Budget amounts are relevant as we are once again sorting based on volume
-
-        Parameters
-        ----------
-        None
 
         Returns
         -------
-            pandas.DataFrame:
-                Dataframe of items, group, amounts
+            pd.DataFrame
                 Columns:
                     Name: item_name, dtype: object
                     Name: display_group, dtype: object
                     Name: budget_item_amount, dtype: float64
                     Name: budget_item_amount_abs, dtype: float64
-
         """
         df_copy = self.df.copy()
         df_copy["budget_item_amount_abs"] = abs(df_copy["budget_item_amount"])
@@ -122,23 +117,18 @@ class BudgetApp:
         return it
 
     def _get_category_groups(self) -> pd.DataFrame:
-        """Returns list of Display Groups ordered by budget_amount (abs)
+        """Gets dataframe with group(only) information
 
         Aggregates budget detail by display group, orders by largest items ascending
         This assumes the behavior of writing the groups with the highest spend first
             (Arguably income should always > any individual group)
 
-        Parameters
-        ----------
-        None
-
         Returns
         -------
-            pandas.DataFrame:
+            pd.DataFrame
                 Columns:
                     Name: display_group, dtype: object
                     Name: budget_item_amount_abs, dtype: float64
-
         """
         df_copy = self.df.copy()
         df_copy["budget_item_amount_abs"] = abs(df_copy["budget_item_amount_abs"])
@@ -166,50 +156,37 @@ class BudgetApp:
         line_style: Excel.LineStyle = Excel.LineStyle.xlContinuous,
         border_weight: Excel.BorderWeight = Excel.BorderWeight.xlThin,
     ):
-        """Resusable common range commands to avoid duplication
-
-        Receives an xlwings.Sheet.Range object
-        Parameters allow a wide variety of formatting options to be applied
+        """Reusable commands to format an xlwings.Sheet.Range
 
         Parameters
         ----------
-            range : xlwings.Sheet.Range object
-                xlwings context to apply formatting operations to
-            value : [str, int]
+            range : xw.Range
+            value (Union[str, int], optional): Union[str, int], default None
                 Sets cell value(s)
-            formula : str
+            formula (str, optional): str, default None
                 Set cell formula
-                if setting for range, context is relative to location
-                    (i.e.) set formula to =SUM(D4) in cells E4:E5
-                    formulas would be =SUM(D4), =SUM(D5)
-            format : Excel.FormatType
+                if setting for range, context is relative to location.
+                Ex `=SUM(D4)` extends to `=SUM(D5)` if former pasted in cells `E4:E5`
+            format (Excel.FormatType, optional): Excel.FormatType, default None
                 str formatting value inherited from constants
-            font_size : int
+            font_size (int, optional): int, default None
                 sets font size
-            font_name : str
+            font_name (str, optional): str, default None
                 sets font name
-            bold : bool
+            bold (bool, optional): bool, default False
                 bold font for cells
-            italic : bool
+            italic (bool, optional): bool, default False
                 italicizes cells
-            underline : bool
+            underline (bool, optional): bool, default False
                 underlines cells
-            border : bool
+            border (bool, optional): bool, default False
                 add border - will assume default vals below
-            border_pos : Excel.BordersIndex
+            border_pos (Excel.BordersIndex, optional): Excel.BordersIndex, default Excel.BordersIndex.xlEdgeBottom
                 int inherited from constants
-                default: bottom
-            line_style : Excel.LineStyle
+            line_style (Excel.LineStyle, optional): Excel.LineStyle, default Excel.LineStyle.xlContinuous
                 int inherited from constants
-                default: continuous
-            border_weight : Excel.BorderWeight
+            border_weight (Excel.BorderWeight, optional): Excel.BorderWeight, default Excel.BorderWeight.xlThin
                 int inherited from constants
-                default: thin
-
-        Returns
-        -------
-        None
-
         """
         if value:
             range.value = value
@@ -235,17 +212,7 @@ class BudgetApp:
         """Initializes xlwings.Book instance
 
         Opens workbook template, forces display front-center
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
         """
-        # self._xlApp = xw.App(visible=True)
         self.wb = xw.Book(TEMPLATE_PATH)
         self.wb.app.activate(steal_focus=True)
 
@@ -254,15 +221,6 @@ class BudgetApp:
 
         Using workbook context, identify data sheet, identify range
         of existing data (if any), clear contents, paste DF in upper-left of range
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
         """
         detail = self.wb.sheets["Data"]
         detail.range("A2:T100000").clear_contents()
@@ -271,25 +229,16 @@ class BudgetApp:
     def _create_summary_header(
         self, summary: xw.Sheet, col_index: int, month_year: Tuple[int, int]
     ):
-        """Writes Month-Year title in Sheet
-
-        Writes new title cell for budgeted month
-        Also sets some hidden, adjacent vals used for cell refs
+        """Creates Month-Year Header in xlwings
 
         Parameters
         ----------
-            summary: xlwings.Book.Sheet (is this even needed?)
+            summary : xw.Sheet
                 context of sheet
-            col_index: int
-                iteration column index
-                (where to write new vals)
-            month_year: tuple(int, int)
+            col_index : int
+                iteration column's index
+            month_year : Tuple[int, int]
                 iteration month & year
-
-        Returns
-        -------
-        None
-
         """
         col = get_col_char(col_index)
 
@@ -319,7 +268,7 @@ class BudgetApp:
         categoryGroup: dict,
         items: pd.DataFrame,
     ):
-        """Writes Display_Group (all items, all month/years) to Sheet
+        """Writes all Category elements to Sheet
 
         Gets category data (item data from _get_items()), creates title,
         iterates over each item in Display_Group, writes label cell, sets formula
@@ -329,19 +278,21 @@ class BudgetApp:
 
         Parameters
         ----------
-            summary: xlwings.Book.Sheet
-            row_index: int
+            summary : xw.Sheet
+                _description_
+            row_index : int
                 Starting row index for group
-            max_col_index: int
-                Maximum month written to col headers
-                (right-most limit)
-            categoryGroup: dict
-                dictionary from self._get_category_groups()
+            max_col_index : int
+                last_month_header_index
+            categoryGroup : dict
+                see `_get_category_groups()`
+            items : pd.DataFrame
+                see `get_items()`
 
         Returns
         -------
-            int: index of last row written to
-
+            int
+                index of last row written
         """
         max_col_char = get_col_char(max_col_index)
 
@@ -423,21 +374,22 @@ class BudgetApp:
     def _build_totals(self, summary: xw.Sheet, row_index: int, max_col_index: int):
         """Builds additional group area to summarize Income, Expenses
 
+
         Adds totals group at bottom of budget sheet, total income, total expenses,
         remaining, remaining % (of income)
 
         Parameters
         ----------
-            summary: xlwings.Book.Sheet
-            row_index: int
-                row to start at
-            max_col_index: int
-                Right-most column written to (limit)
+            summary : xw.Sheet
+            row_index : int
+                starting row index
+            max_col_index : int
+                last_month_header_index
 
         Returns
         -------
-            int: last row index written to
-
+            int
+                last row written
         """
         max_col_char = get_col_char(max_col_index)
 
@@ -508,16 +460,11 @@ class BudgetApp:
 
         Parameters
         ----------
-            summary: xlapp.Book.Sheet
-            max_col_index: int
-                last column written to
-            last_row_index: int
-                last row written to
-
-        Returns
-        -------
-        None
-
+            summary : xw.Sheet
+            max_col_index : int
+                last col written
+            last_row_index : int
+                last row written
         """
         all_cells = summary.range(
             f"A1:{get_col_char(max_col_index+26)}{last_row_index+1000}"
@@ -541,10 +488,6 @@ class BudgetApp:
         Using existing xlwings.Book context, open template, update base budget data,
         edit title, iterate over month_year, create date headers, build display_groups,
         build totals, apply sheet formatting.
-
-        Args:
-
-        Returns:
 
         """
         self._create_xlInstance()
@@ -584,17 +527,7 @@ class BudgetApp:
         self._sheet_level_formatting(summary, start_col, iter_row)
 
     def save_and_close(self):
-        """Using instance of xlwings.Book, saves & closes file
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        """
+        """Using instance of xlwings.Book, saves & closes file"""
         self._wb.save(
             os.path.join(
                 SAVE_PATH, f"Budget Tool {datetime.now().strftime('%Y%m%d')}.xlsx"
