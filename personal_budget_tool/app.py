@@ -10,13 +10,15 @@ def main():
     min_date = datetime(2023, 1, 1, 0, 0, 0)
     max_date = datetime(2024, 12, 31, 0, 0, 0)
 
-    inputConfig = InputConfig()
+    input_config = InputConfig()
+    input_config.prompt()
 
-    data = DataBuilder(min_date=min_date, max_date=max_date)
-    df = data.get_export_data()
+    data_builder = DataBuilder(min_date=min_date, max_date=max_date)
+    data_builder.build_data_model()
+    df = data_builder.get_df()
 
-    excelApp = BudgetApp(min_date=min_date, max_date=max_date, df=df)
-    excelApp.save_and_close()
+    excel_app = BudgetApp(min_date=min_date, max_date=max_date, df=df)
+    excel_app.save_and_close()
 
 
 if __name__ == "__main__":

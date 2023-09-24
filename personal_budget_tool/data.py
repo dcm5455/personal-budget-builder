@@ -11,30 +11,41 @@ warnings.simplefilter("ignore")
 
 
 class DataBuilder:
+    """Class to interact with data model for budget
+
+    Attributes
+    ----------
+        min_date : datetime
+            Start date for the budget
+        max_date: datetime
+            End date for the budget
+
+    Methods
+    -------
+        build_data_model():
+            Acquires data from multiple sources, consolidates
+        get_df():
+            Returns df filtered for model
+
+    """
+
     def __init__(self, min_date: datetime, max_date: datetime):
+        """Initializes DataBuilder class
+
+        Parameters
+        ----------
+            min_date : datetime
+                Start date for the budget
+            max_date: datetime
+                End date for the budget
+        """
         self.min_date = min_date
         self.max_date = max_date
-        self.dates = None
-        self.items = None
-        self.date_items = None
-        self._get_dates()
-        self._get_date_list()
-        self._get_items()
-        self._get_date_items()
-        self._audit_date_frequencies()
-        self._calc_budget_amounts()
 
     def _get_dates(self):
         """Reads table of dates from Inputs file
 
         Reads table from excel file into pd.DataFrame format. Sets self.dates
-
-        Args:
-            None
-
-        Returns:
-            None
-
         """
         dates = read_dataframe_input(**Models.BudgetDate)
         dates = filter_df_between(
@@ -46,13 +57,6 @@ class DataBuilder:
         """One-line description of function
 
         Multi-line expanded description of function
-
-        Args:
-            None
-
-        Returns:
-            return: val
-
         """
         self.date_list = [
             f"{x['year']}-{x['month_number']}-{x['day_number']}"
@@ -63,13 +67,6 @@ class DataBuilder:
         """Reads table of items from Inputs file
 
         Reads table from excel file into pd.DataFrame format. Sets self.items
-
-        Args:
-            None
-
-        Returns:
-            None
-
         """
         self.items = read_dataframe_input(**Models.BudgetItem)
 
@@ -79,13 +76,6 @@ class DataBuilder:
         Combines two existing dataframes as a cross join (or cartesian product).
         Sorts by budget_item, then date ascending. Adds a 0-value field for budget amt,
         which we fill in next.
-
-        Args:
-            None
-
-        Returns:
-            None
-
         """
         df = self.dates.merge(self.items, how="cross")
         df = df.sort_values(
@@ -101,13 +91,14 @@ class DataBuilder:
         This is used for frequencies such as 'bi-weekly' so we can understand
             when to budget for something correctly
 
-        Args:
-            week_number: int
-                Week number to check
+        Parameters
+        ----------
+            week_number : int
 
-        Returns:
-            bool: is_even
-
+        Returns
+        -------
+            bool
+                is_even_week
         """
         return (week_number % 2) == 0
 
@@ -117,17 +108,19 @@ class DataBuilder:
         Create date based on year, month, day params.
         Validate based on the date_list created by earlier dates data
 
-        Args:
-            year: int
-                Year of date
-            month: int
-                Month of date
-            day: int
-                Day in month of date
+        Parameters
+        ----------
+            year : int
+                year of date
+            month : int
+                month of date
+            day : int
+                day in month
 
-        Returns:
-            bool: exists_in_list
-
+        Returns
+        -------
+            bool
+                exists_in_list
         """
         return f"{year}-{month}-{day}" in self.date_list
 
@@ -137,15 +130,17 @@ class DataBuilder:
         Uses existing date_items DF, filters to given year & month, returns maximum
             day_number based on those params.
 
-        Args:
-            year: int
+        Parameters
+        ----------
+            year : int
                 given_year
-            month: int
+            month : int
                 given_month
 
-        Returns:
-            return: day: int
-
+        Returns
+        -------
+            int
+                last_day_in_yearmonth
         """
         return (
             self.date_items.groupby(["year", "month_number"])["day_number"]
@@ -162,14 +157,15 @@ class DataBuilder:
         whether the week was an even week. This is used in bi-weekly freq's
         to understand what cadence to budget on
 
-        Args:
-            date: datetime
+        Parameters
+        ----------
+            date : datetime
                 start_date provided to base cadence upon
 
-        Returns:
-            tuple(datetime, bool)
-            tuple(day_of_week, is_even_week)
-
+        Returns
+        -------
+            Tuple[int, bool]
+                day_of_week, is_even_week
         """
         iter_date = self.dates[self.dates["date"] == date].iloc[0]
         start_day_of_week = iter_date["day_of_week"]
@@ -184,13 +180,6 @@ class DataBuilder:
             the max existing day in month.
         Iterates over rows in date_items, skips rows w/o frequency_day
         If row has an invalid date, set to max_day_in_yearmonth
-
-        Args:
-            None
-
-        Returns:
-            return: val
-
         """
         for index, row in self.date_items.iterrows():
             if pd.isnull(row["frequency_day"]):
@@ -212,12 +201,15 @@ class DataBuilder:
         If income, keep number positive else negative (expense)
         If seasonality applied, add seasonality_multiplier on top
 
-        Args:
-            row: dict (pd.DataFrame row)
+        Parameters
+        ----------
+            row : dict
+                row: dict (pd.DataFrame row)
 
-        Returns:
-            return: float
-
+        Returns
+        -------
+            float
+                multiplier
         """
         return (1.00 if row["item_type"] == "Income" else -1.00) * (
             row["seasonality_multiplier"] if row["is_seasonality"] else 1.00
@@ -231,12 +223,15 @@ class DataBuilder:
             2 - if end_date exists and date is past end, return false
             3 - if start_date exists and date is before start, return false
 
-        Args:
-            row: dict (pd.DataFrame row)
+        Parameters
+        ----------
+            row : dict
+                row: dict (pd.DataFrame row)
 
-        Returns:
-            return: bool
-
+        Returns
+        -------
+            bool
+                is valid record
         """
         if not row["is_active"]:
             return False
@@ -259,12 +254,15 @@ class DataBuilder:
         Returns item_amount * calc_multiplier for records we want to budget for
             else 0.00
 
-        Args:
-            row: dict (pd.DataFrame row)
+        Parameters
+        ----------
+            row : dict
+                row of pd.Dataframe
 
-        Returns:
-            return: float
-
+        Returns
+        -------
+            float
+                budget_amount
         """
         if not self._validate_record(row):
             return 0.00
@@ -356,34 +354,27 @@ class DataBuilder:
         """Applies function to each row in date_items
 
         Calculates budget_amount field using above function
-
-        Args:
-
-        Returns:
-
         """
         self.date_items["budget_item_amount"] = self.date_items.apply(
             lambda x: self._calculate_budget_amount(x), axis=1
         )
 
-    def get_export_data(self) -> pd.DataFrame:
-        """One-line description of function
+    def build_data_model(self):
+        """Runs individual steps to create data model"""
+        self._get_dates()
+        self._get_date_list()
+        self._get_items()
+        self._get_date_items()
+        self._audit_date_frequencies()
+        self._calc_budget_amounts()
 
-        Multi-line expanded description of function
+    def get_df(self) -> pd.DataFrame:
+        """Get DF limited to fields for tool
 
-        Args:
-            Arg1: ArgType
-                Arg1 Description
-            Arg2: ArgType
-                Arg2 Description
-            Arg3: ArgType
-                Arg3 Description
-            Arg4: ArgType
-                Arg4 Description
-
-        Returns:
-            return: val
-
+        Returns
+        -------
+            pd.DataFrame
+                data model
         """
         df = self.date_items.copy()
         df = df[Models.ExportData.Columns]
