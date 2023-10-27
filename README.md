@@ -1,4 +1,4 @@
-# Personal-Budget-Tool
+# Personal Budget Builder
 
 Excel + Python app that generates a personal budget tool in Excel based on user input.
 
