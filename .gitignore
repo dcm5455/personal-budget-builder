@@ -9,3 +9,6 @@ src/output/*
 
 
 *test_docstrings.py
+
+
+*.DS_Store
