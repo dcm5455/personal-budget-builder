@@ -7,8 +7,8 @@ from excel import BudgetApp
 
 
 def main():
-    min_date = datetime(2023, 1, 1, 0, 0, 0)
-    max_date = datetime(2024, 12, 31, 0, 0, 0)
+    min_date = datetime(2025, 1, 1, 0, 0, 0)
+    max_date = datetime(2030, 12, 31, 0, 0, 0)
 
     input_config = InputConfig()
     input_config.prompt()
